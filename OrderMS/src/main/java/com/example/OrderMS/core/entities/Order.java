@@ -41,6 +41,21 @@ public class Order {
         this.createdAt = LocalDateTime.now();
     }
 
+    private Order(){}
+
+    public static Order reconstruct(Long id, Long userId, Long productId, int quantity, BigDecimal productPrice, StatusEnum status, LocalDateTime createdAt) {
+        Order order = new Order();
+        order.id = id;
+        order.userId = userId;
+        order.productId = productId;
+        order.quantity = quantity;
+        order.productPrice = productPrice;
+        order.status = status;
+        order.createdAt = createdAt;
+        return order;
+    }
+
+
 
     public BigDecimal calculateTotal() {
 
@@ -91,9 +106,30 @@ public class Order {
         return quantity;
     }
 
+    public  Long getUserId(){
+        return userId;
+    }
 
+    public Long getProductId(){
+        return productId;
+    }
+
+    public BigDecimal getProductPrice(){
+        return productPrice;
+    }
+    public  LocalDateTime getCreatedAt(){
+        return createdAt;
+    }
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public void setStatus(StatusEnum status){
+        this.status = status;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt){
+        this.createdAt = createdAt;
     }
 }
