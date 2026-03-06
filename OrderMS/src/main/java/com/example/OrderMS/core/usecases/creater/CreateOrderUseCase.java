@@ -1,6 +1,4 @@
-package com.example.OrderMS.core.usecases;
-
-import com.example.OrderMS.core.entities.Order;
+package com.example.OrderMS.core.usecases.creater;
 
 public interface CreateOrderUseCase {
      CreateOrderOutput execute(CreateOrderInput input);

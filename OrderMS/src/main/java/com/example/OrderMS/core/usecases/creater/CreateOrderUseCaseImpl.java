@@ -1,4 +1,4 @@
-package com.example.OrderMS.core.usecases;
+package com.example.OrderMS.core.usecases.creater;
 
 import com.example.OrderMS.core.entities.Order;
 import com.example.OrderMS.core.gateways.OrderGateway;

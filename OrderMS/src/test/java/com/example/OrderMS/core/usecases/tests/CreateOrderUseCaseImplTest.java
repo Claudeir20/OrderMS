@@ -3,9 +3,9 @@ package com.example.OrderMS.core.usecases.tests;
 
 import com.example.OrderMS.core.entities.Order;
 import com.example.OrderMS.core.gateways.OrderGateway;
-import com.example.OrderMS.core.usecases.CreateOrderInput;
-import com.example.OrderMS.core.usecases.CreateOrderOutput;
-import com.example.OrderMS.core.usecases.CreateOrderUseCaseImpl;
+import com.example.OrderMS.core.usecases.creater.CreateOrderInput;
+import com.example.OrderMS.core.usecases.creater.CreateOrderOutput;
+import com.example.OrderMS.core.usecases.creater.CreateOrderUseCaseImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
