@@ -31,7 +31,7 @@ public class OrderEntity {
     @Column(nullable = false)
     private int quantity;
 
-    @Column(nullable = false)
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal productPrice;
 
     @Enumerated(EnumType.STRING)
