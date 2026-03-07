@@ -68,13 +68,14 @@ src/main/java/com/example/OrderMS/
 └── infra/
     ├── controller/
     │   └── OrderController.java
-    ├── persistence/
-    │   ├── entity/
-    │   │   └── OrderEntity.java
-    │   ├── repository/
-    │   │   └── OrderRepository.java
-    │   └── gateway/
-    │       └── OrderRepositoryGateway.java
+    ├── model/
+    │   ├── OrderEntity.java/
+    │──config/
+    |     └── UseCaseConfig.Java  
+    │── repository/
+    │       └── OrderRepository.java
+    │── gateway/
+    │     └── OrderRepositoryGateway.java
     └── mapper/
         └── OrderMapper.java
 ```
