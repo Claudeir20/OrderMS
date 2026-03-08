@@ -4,6 +4,7 @@ import com.example.OrderMS.core.entities.enums.StatusEnum;
 import jakarta.persistence.EnumType;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -59,7 +60,9 @@ public class Order {
 
     public BigDecimal calculateTotal() {
 
-       return productPrice.multiply(BigDecimal.valueOf(quantity));
+       return productPrice
+               .multiply(BigDecimal.valueOf(quantity))
+               .setScale(2, RoundingMode.HALF_UP);
     }
 
     public void cancel(){
