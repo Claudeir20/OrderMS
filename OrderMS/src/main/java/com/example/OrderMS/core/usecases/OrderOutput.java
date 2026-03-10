@@ -1,9 +1,9 @@
-package com.example.OrderMS.core.usecases.creater;
+package com.example.OrderMS.core.usecases;
 
-public class CreateOrderOutput {
+public class OrderOutput {
     private final Long orderId;
 
-    public CreateOrderOutput(Long orderId) {
+    public OrderOutput(Long orderId) {
         this.orderId = orderId;
     }
 

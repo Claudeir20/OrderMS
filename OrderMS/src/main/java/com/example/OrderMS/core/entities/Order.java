@@ -1,12 +1,19 @@
 package com.example.OrderMS.core.entities;
 
 import com.example.OrderMS.core.entities.enums.StatusEnum;
-import jakarta.persistence.EnumType;
+import com.example.OrderMS.core.events.DomainEvent;
+import com.example.OrderMS.core.events.OrderCancelled;
+import com.example.OrderMS.core.events.OrderConfirmed;
+import com.example.OrderMS.core.events.OrderCreated;
+import com.example.OrderMS.core.exceptions.OrderInvalidStateException;
+import com.example.OrderMS.core.exceptions.OrderValidationException;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class Order {
     private Long id;
@@ -18,20 +25,23 @@ public class Order {
     private LocalDateTime createdAt;
 
 
-    public  Order( Long userId, Long productId, int quantity, BigDecimal productPrice){
-        if(quantity <= 0){
-            throw new RuntimeException("Quantity must be greater than 0 ");
+    // Regra: pedido nasce valido e em status PENDING
+    public Order(Long userId, Long productId, int quantity, BigDecimal productPrice) {
+        // Regra: quantidade deve ser maior que zero
+        if (quantity <= 0) {
+            throw new OrderValidationException("Quantity must be greater than 0");
         }
-        if(userId == null ){
-            throw new RuntimeException("User is required");
+        // Regra: usuario e obrigatorio
+        if (userId == null) {
+            throw new OrderValidationException("User is required");
         }
-
-        if(productId == null ){
-            throw new RuntimeException("Product is required");
+        // Regra: produto e obrigatorio
+        if (productId == null) {
+            throw new OrderValidationException("Product is required");
         }
-
-        if(productPrice.compareTo(BigDecimal.ZERO) <= 0){
-            throw new IllegalArgumentException("Price must be greater than 0");
+        // Regra: preco deve ser maior que zero
+        if (productPrice.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new OrderValidationException("Price must be greater than 0");
         }
 
         this.userId = userId;
@@ -42,8 +52,10 @@ public class Order {
         this.createdAt = LocalDateTime.now();
     }
 
-    private Order(){}
+    // Construtor reservado para reconstruir do banco
+    private Order() {}
 
+    // Reconstroi um pedido existente sem disparar validacoes de criacao
     public static Order reconstruct(Long id, Long userId, Long productId, int quantity, BigDecimal productPrice, StatusEnum status, LocalDateTime createdAt) {
         Order order = new Order();
         order.id = id;
@@ -56,8 +68,10 @@ public class Order {
         return order;
     }
 
+    private final List<DomainEvent> domainEvents = new ArrayList<>();
 
 
+    // Regra: total = preco * quantidade com escala 2
     public BigDecimal calculateTotal() {
 
        return productPrice
@@ -65,35 +79,68 @@ public class Order {
                .setScale(2, RoundingMode.HALF_UP);
     }
 
-    public void cancel(){
-        if (status == StatusEnum.CONFIRMED){
-            throw new IllegalArgumentException("Cannot cancel a confirmed order");
+    // Regra: nao pode cancelar pedido confirmado
+    public void cancel() {
+        if (status == StatusEnum.CONFIRMED) {
+            throw new OrderInvalidStateException("Cannot cancel a confirmed order");
         }
         this.status = StatusEnum.CANCELLED;
+
+        domainEvents.add(new OrderCancelled(this.id, this.userId, LocalDateTime.now()));
     }
 
-    public void changeQuantity(int newQuantity){
-        if (newQuantity <= 0){
-            throw new IllegalArgumentException("Quantity must be greater than 0");
+    // Regra: so pode alterar quantidade em pedidos PENDING
+    public void changeQuantity(int newQuantity) {
+        // Regra: quantidade deve ser maior que zero
+        if (newQuantity <= 0) {
+            throw new OrderValidationException("Quantity must be greater than 0");
         }
 
-        if (status == StatusEnum.CANCELLED){
-            throw new IllegalArgumentException("This order has already been canceled");
+        if (status == StatusEnum.CANCELLED) {
+            throw new OrderInvalidStateException("This order has already been canceled");
         }
 
-        if (status == StatusEnum.CONFIRMED){
-            throw new IllegalArgumentException("This order is confirmed");
+        if (status == StatusEnum.CONFIRMED) {
+            throw new OrderInvalidStateException("This order is confirmed");
         }
 
         quantity = newQuantity;
     }
 
-    public void markAsConfirmed(){
-        if (status == StatusEnum.CANCELLED){
-            throw new IllegalArgumentException("This order has already been canceled");
+    // Regra: nao pode confirmar pedido cancelado
+    public void markAsConfirmed() {
+        if (status == StatusEnum.CANCELLED) {
+            throw new OrderInvalidStateException("This order has already been canceled");
         }
-        this.status = StatusEnum.CONFIRMED;
+        status = StatusEnum.CONFIRMED;
 
+        domainEvents.add(new OrderConfirmed(this.id, this.userId, LocalDateTime.now()));
+
+    }
+
+    // Regra: evento de criacao deve ser emitido apos persistencia (id atribuido)
+    public void markAsCreated() {
+        domainEvents.add(new OrderCreated(
+                this.id,
+                this.userId,
+                this.productId,
+                calculateTotal(),
+                LocalDateTime.now()
+        ));
+    }
+
+
+    // Regra: eventos sao consumidos uma unica vez
+    public List<DomainEvent> pullEvents() {
+        var events = new ArrayList<>(domainEvents);
+        domainEvents.clear();
+        return events;
+    }
+
+
+
+    public void assignId(Long id) {
+        this.id = id;
     }
 
 
@@ -101,38 +148,48 @@ public class Order {
         return id;
     }
 
+
     public StatusEnum getStatus() {
         return status;
     }
 
+    // Retorna quantidade atual
     public int getQuantity() {
         return quantity;
     }
 
-    public  Long getUserId(){
+
+    public Long getUserId() {
         return userId;
     }
 
-    public Long getProductId(){
+
+    public Long getProductId() {
         return productId;
     }
 
-    public BigDecimal getProductPrice(){
+
+    public BigDecimal getProductPrice() {
         return productPrice;
     }
-    public  LocalDateTime getCreatedAt(){
+
+
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
+
 
     public void setId(Long id) {
         this.id = id;
     }
 
-    public void setStatus(StatusEnum status){
+    // Define status do pedido
+    public void setStatus(StatusEnum status) {
         this.status = status;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt){
+
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 }

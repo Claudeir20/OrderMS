@@ -3,9 +3,9 @@ package com.example.OrderMS.core.usecases.tests;
 
 import com.example.OrderMS.core.entities.Order;
 import com.example.OrderMS.core.gateways.OrderGateway;
-import com.example.OrderMS.core.usecases.creater.CreateOrderInput;
-import com.example.OrderMS.core.usecases.creater.CreateOrderOutput;
-import com.example.OrderMS.core.usecases.creater.CreateOrderUseCaseImpl;
+import com.example.OrderMS.core.usecases.OrderInput;
+import com.example.OrderMS.core.usecases.OrderOutput;
+import com.example.OrderMS.core.usecases.create.CreateOrderUseCaseImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -33,14 +33,14 @@ class CreateOrderUseCaseImplTest {
 
     @Test
     void shouldCreateOrderSuccessfully() {
-        CreateOrderInput input = new CreateOrderInput(1L, 2L, 3, new BigDecimal("50.00"));
+        OrderInput input = new OrderInput(1L, 2L, 3, new BigDecimal("50.00"));
 
         Order savedOrder = new Order(1L, 2L, 3, new BigDecimal("50.00"));
         savedOrder.setId(10L); // simula o ID gerado pelo banco
 
         when(orderGateway.save(any(Order.class))).thenReturn(savedOrder);
 
-        CreateOrderOutput output = createOrderUseCase.execute(input);
+        OrderOutput output = createOrderUseCase.execute(input);
 
         assertNotNull(output);
         assertEquals(10L, output.getOrderId());

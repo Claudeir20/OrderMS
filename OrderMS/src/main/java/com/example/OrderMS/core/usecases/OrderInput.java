@@ -1,14 +1,14 @@
-package com.example.OrderMS.core.usecases.creater;
+package com.example.OrderMS.core.usecases;
 
 import java.math.BigDecimal;
 
-public class CreateOrderInput {
+public class OrderInput {
     private Long userId;
     private Long productId;
     private int quantity;
     private BigDecimal productPrice;
 
-    public CreateOrderInput(Long userId, Long productId, int quantity, BigDecimal productPrice){
+    public OrderInput(Long userId, Long productId, int quantity, BigDecimal productPrice){
 
         this.userId = userId;
         this.productId = productId;
